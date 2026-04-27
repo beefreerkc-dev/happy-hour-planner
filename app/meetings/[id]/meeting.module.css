@@ -1,0 +1,244 @@
+.topbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: clamp(28px, 4vw, 48px);
+  margin: 0 0 8px;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.panel {
+  display: grid;
+  gap: 16px;
+}
+
+.statusList,
+.bestList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.pill,
+.bestSlot {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  list-style: none;
+  padding: 10px 12px;
+}
+
+.done {
+  background: var(--success-soft);
+  border-color: #9fb9aa;
+}
+
+.calendar {
+  display: grid;
+  gap: 18px;
+}
+
+.week {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.weekHeader {
+  align-items: center;
+  background: #edf3ef;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  font-weight: 700;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.weekNav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  min-width: 1050px;
+  overflow-x: auto;
+}
+
+.day {
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+  min-height: 240px;
+  padding: 10px;
+}
+
+.day:last-child {
+  border-right: 0;
+}
+
+.weekend {
+  background: var(--weekend);
+}
+
+.dayOptimal {
+  box-shadow: inset 0 0 0 2px var(--success);
+}
+
+.dayFinal {
+  background: #ecfdf0;
+}
+
+.outside {
+  opacity: 0.35;
+}
+
+.dayTitle {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.dayBadge {
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.intervalForm {
+  display: grid;
+  gap: 8px;
+}
+
+.intervalForm label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.intervals {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.interval {
+  align-items: center;
+  background: #f7f9f7;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+}
+
+.interval button {
+  background: transparent;
+  border: 0;
+  color: #c92a2a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.selected {
+  background: var(--success-soft);
+  border-color: var(--accent);
+}
+
+.optimal {
+  box-shadow: inset 0 0 0 2px var(--success);
+}
+
+.final {
+  background: var(--success-soft);
+  border-color: var(--success);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.error {
+  color: #c92a2a;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .week {
+    overflow-x: auto;
+  }
+
+  .day {
+    border-right: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .weekHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weekNav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .days {
+    grid-template-columns: repeat(7, 168px);
+    min-width: 1176px;
+  }
+
+  .day {
+    padding: 12px;
+  }
+
+  .bestSlot,
+  .pill,
+  .interval {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bestSlot button,
+  .interval button {
+    width: 100%;
+  }
+
+  .actions {
+    display: grid;
+  }
+}

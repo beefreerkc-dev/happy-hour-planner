@@ -1,0 +1,101 @@
+:root {
+  --background: #f5f6f4;
+  --foreground: #1f2a24;
+  --muted: #647067;
+  --card: #ffffff;
+  --border: #d9dfd8;
+  --accent: #1f5c45;
+  --accent-dark: #174533;
+  --success: #1f5c45;
+  --success-soft: #e4efe9;
+  --weekend: #eef1ee;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(31, 42, 36, 0.07);
+  padding: 24px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.button {
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 12px 18px;
+}
+
+.button.secondary {
+  background: #edf3ef;
+  border: 1px solid #c8d6ce;
+  color: var(--accent-dark);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.input,
+.select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 12px 14px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    width: min(100% - 20px, 1180px);
+    padding: 16px 0 32px;
+  }
+
+  .card {
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .button {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+}
