@@ -47,7 +47,7 @@ export default function MeetingPageClient({ id }: Props) {
   const [bundle, setBundle] = useState<MeetingBundle | null>(null);
   const [participant, setParticipant] = useState<Participant | "">("");
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
-  const [draftIntervals, setDraftIntervals] = useState<Record<string, Interval>>({});
+  const [draftIntervals, setDraftIntervals] = useState<Record<string, Interval[]>>({});
   const [weekIndex, setWeekIndex] = useState(0);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -118,18 +118,81 @@ export default function MeetingPageClient({ id }: Props) {
   const { meeting, optimalSlots, submittedParticipants } = bundle;
   const isEveryoneSubmitted = submittedParticipants.length === meeting.participants.length;
 
-  function getDraftInterval(date: string) {
-    return draftIntervals[date] || { startTime: "08:00", endTime: "09:00" };
+  function createDefaultDraftInterval(): Interval {
+    return { startTime: "08:00", endTime: "09:00" };
   }
 
-  function updateDraftInterval(date: string, changes: Partial<Interval>) {
-    setDraftIntervals((current) => ({
-      ...current,
-      [date]: {
-        ...getDraftInterval(date),
-        ...changes,
-      },
-    }));
+  function getDraftIntervals(date: string) {
+    return draftIntervals[date] || [createDefaultDraftInterval()];
+  }
+
+  function updateDraftInterval(date: string, index: number, changes: Partial<Interval>) {
+    setDraftIntervals((current) => {
+      const intervals = current[date] || [createDefaultDraftInterval()];
+
+      return {
+        ...current,
+        [date]: intervals.map((interval, itemIndex) =>
+          itemIndex === index
+            ? {
+                ...interval,
+                ...changes,
+              }
+            : interval,
+        ),
+      };
+    });
+  }
+
+  function addDraftInterval(date: string) {
+    setDraftIntervals((current) => {
+      const intervals = current[date] || [createDefaultDraftInterval()];
+
+      return {
+        ...current,
+        [date]: [...intervals, createDefaultDraftInterval()],
+      };
+    });
+  }
+
+  function removeDraftInterval(date: string, index: number) {
+    setDraftIntervals((current) => {
+      const intervals = current[date] || [createDefaultDraftInterval()];
+      const nextIntervals = intervals.filter((_, itemIndex) => itemIndex !== index);
+
+      return {
+        ...current,
+        [date]: nextIntervals.length > 0 ? nextIntervals : [createDefaultDraftInterval()],
+      };
+    });
+  }
+
+  function addIntervals(date: string) {
+    const intervals = getDraftIntervals(date);
+
+    for (const interval of intervals) {
+      if (timeToMinutes(interval.startTime) >= timeToMinutes(interval.endTime)) {
+        setError("Время окончания должно быть позже времени начала.");
+        return;
+      }
+    }
+
+    setError("");
+    setSelectedSlots((current) => {
+      const next = new Set(current);
+
+      for (const interval of intervals) {
+        let currentTime = interval.startTime;
+        const end = timeToMinutes(interval.endTime);
+
+        while (timeToMinutes(currentTime) < end) {
+          next.add(slotKey(date, currentTime));
+          currentTime = addMinutes(currentTime, 30);
+        }
+      }
+
+      return next;
+    });
   }
 
   function getSelectedIntervals(date: string) {
@@ -168,30 +231,6 @@ export default function MeetingPageClient({ id }: Props) {
     }
 
     return intervals;
-  }
-
-  function addInterval(date: string) {
-    const interval = getDraftInterval(date);
-    const start = timeToMinutes(interval.startTime);
-    const end = timeToMinutes(interval.endTime);
-
-    if (start >= end) {
-      setError("Время окончания должно быть позже времени начала.");
-      return;
-    }
-
-    setError("");
-    setSelectedSlots((current) => {
-      const next = new Set(current);
-      let currentTime = interval.startTime;
-
-      while (timeToMinutes(currentTime) < end) {
-        next.add(slotKey(date, currentTime));
-        currentTime = addMinutes(currentTime, 30);
-      }
-
-      return next;
-    });
   }
 
   function removeInterval(date: string, interval: Interval) {
@@ -375,47 +414,75 @@ export default function MeetingPageClient({ id }: Props) {
                         <div className={styles.dayBadge}>Есть пересечение</div>
                       ) : null}
                       <div className={styles.intervalForm}>
-                        <label>
-                          <span>С</span>
-                          <select
-                            className="select"
-                            disabled={!day.isCurrentMonth}
-                            value={getDraftInterval(day.date).startTime}
-                            onChange={(event) =>
-                              updateDraftInterval(day.date, { startTime: event.target.value })
-                            }
+                        {getDraftIntervals(day.date).map((interval, intervalIndex) => (
+                          <div
+                            className={styles.draftInterval}
+                            key={`${day.date}-${intervalIndex}`}
                           >
-                            {timeOptions.slice(0, -1).map((time) => (
-                              <option key={time} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label>
-                          <span>До</span>
-                          <select
-                            className="select"
-                            disabled={!day.isCurrentMonth}
-                            value={getDraftInterval(day.date).endTime}
-                            onChange={(event) =>
-                              updateDraftInterval(day.date, { endTime: event.target.value })
-                            }
-                          >
-                            {timeOptions.slice(1).map((time) => (
-                              <option key={time} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                            <label>
+                              <span>С</span>
+                              <select
+                                className="select"
+                                disabled={!day.isCurrentMonth}
+                                value={interval.startTime}
+                                onChange={(event) =>
+                                  updateDraftInterval(day.date, intervalIndex, {
+                                    startTime: event.target.value,
+                                  })
+                                }
+                              >
+                                {timeOptions.slice(0, -1).map((time) => (
+                                  <option key={time} value={time}>
+                                    {time}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label>
+                              <span>До</span>
+                              <select
+                                className="select"
+                                disabled={!day.isCurrentMonth}
+                                value={interval.endTime}
+                                onChange={(event) =>
+                                  updateDraftInterval(day.date, intervalIndex, {
+                                    endTime: event.target.value,
+                                  })
+                                }
+                              >
+                                {timeOptions.slice(1).map((time) => (
+                                  <option key={time} value={time}>
+                                    {time}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            {getDraftIntervals(day.date).length > 1 ? (
+                              <button
+                                className={styles.removeDraft}
+                                onClick={() => removeDraftInterval(day.date, intervalIndex)}
+                                type="button"
+                              >
+                                Удалить
+                              </button>
+                            ) : null}
+                          </div>
+                        ))}
                         <button
                           className="button secondary"
                           disabled={!day.isCurrentMonth}
-                          onClick={() => addInterval(day.date)}
+                          onClick={() => addDraftInterval(day.date)}
                           type="button"
                         >
-                          Добавить
+                          + Еще период
+                        </button>
+                        <button
+                          className="button secondary"
+                          disabled={!day.isCurrentMonth}
+                          onClick={() => addIntervals(day.date)}
+                          type="button"
+                        >
+                          Добавить периоды
                         </button>
                       </div>
                       <div className={styles.intervals}>
