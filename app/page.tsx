@@ -38,21 +38,25 @@ export default function Home() {
     setError("");
     setIsSubmitting(true);
 
-    const response = await fetch("/api/meetings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, durationMinutes, participants }),
-    });
+    try {
+      const response = await fetch("/api/meetings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, durationMinutes, participants }),
+      });
+      const result = await response.json();
 
-    const result = await response.json();
-    setIsSubmitting(false);
+      if (!response.ok) {
+        setError(result.error || "Не удалось создать встречу.");
+        return;
+      }
 
-    if (!response.ok) {
-      setError(result.error || "Не удалось создать встречу.");
-      return;
+      router.push(`/meetings/${result.meeting.id}`);
+    } catch {
+      setError("Не удалось создать встречу. Проверь настройки Google Sheets в Vercel.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push(`/meetings/${result.meeting.id}`);
   }
 
   return (

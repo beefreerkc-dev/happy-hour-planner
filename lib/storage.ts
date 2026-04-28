@@ -10,8 +10,12 @@ type DataFile = {
 
 const dataPath = path.join(process.cwd(), ".data", "happy-hour.json");
 
+function cleanEnvValue(value = "") {
+  return value.replace(/^"|"$/g, "");
+}
+
 function getSpreadsheetId() {
-  const value = process.env.GOOGLE_SHEETS_ID || "";
+  const value = cleanEnvValue(process.env.GOOGLE_SHEETS_ID);
   const match = value.match(/\/spreadsheets\/d\/([^/]+)/);
   return match ? match[1] : value;
 }
@@ -39,9 +43,9 @@ async function writeLocalData(data: DataFile) {
 }
 
 async function getSheetsClient() {
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const privateKey = cleanEnvValue(process.env.GOOGLE_PRIVATE_KEY).replace(/\\n/g, "\n");
   const auth = new google.auth.JWT({
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    email: cleanEnvValue(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL),
     key: privateKey,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
