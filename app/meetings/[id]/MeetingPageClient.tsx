@@ -482,7 +482,7 @@ export default function MeetingPageClient({ id }: Props) {
                           onClick={() => addIntervals(day.date)}
                           type="button"
                         >
-                          Добавить периоды
+                          Готово
                         </button>
                       </div>
                       <div className={styles.intervals}>
